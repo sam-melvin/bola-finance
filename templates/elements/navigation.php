@@ -4,7 +4,7 @@ $navTrees = [
     [
         'title' => 'Finance',
         'link' => './',
-        'page' => 'banker',
+        'page' => 'index',
         'icon' => 'fa-circle',
         'type' => USER_FINANCE
     ],

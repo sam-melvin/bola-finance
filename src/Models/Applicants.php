@@ -12,8 +12,8 @@ class Applicants extends Model
      * Status constant
      */
     const STATUS_PENDING = 'pending';
-    const STATUS_WIN = 'verified';
-    const STATUS_LOSE = 'declined';
+    const STATUS_APPROVED = 'approved';
+    const STATUS_DECLINED = 'declined';
 
     /**
      *  Set the table name

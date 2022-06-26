@@ -66,7 +66,7 @@ $banker = [
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bola Manage | Banker</title>
+    <title>Bolaswerte Finance</title>
     <link rel="apple-touch-icon" sizes="57x57" href="/dist/img/favicon/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/dist/img/favicon/apple-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="/dist/img/favicon/apple-icon-72x72.png">
@@ -99,7 +99,7 @@ $banker = [
     <link rel="stylesheet" href="plugins/select2/css/select2.min.css">
     <link rel="stylesheet" href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
 </head>
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini sidebar-collapse">
     <div class="wrapper">
         <div class="preloader flex-column justify-content-center align-items-center">
             <img class="animation__shake" src="dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
@@ -160,7 +160,7 @@ $banker = [
                             <div class="small-box bg-info">
                                 <div class="inner">
                                     <h3>&#8369; <?= number_format($banker['currentBalance'], 2) ?></h3>
-                                    <p>Total Admin Balance</p>
+                                    <p>Total Finance Balance</p>
                                 </div>
                                 <div class="icon">
                                     <i class="fas fa-coins"></i>
@@ -210,17 +210,7 @@ $banker = [
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col">
-                                                <div class="form-group">
-                                                    <label for="sourceFund">Cash Pool</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text"><i class="fas fa-wallet"></i></span>
-                                                        </div>
-                                                        <input type="text" value="&#8369; <?= number_format($banker['currentBalance'], 2) ?>" name="cashPool" class="form-control" id="cashPool" disabled="disabled">
-                                                    </div>
-                                                </div>
-                                            </div>
+                                           
                                             <div class="col">
                                                 <div class="form-group">
                                                     <label for="amount">Amount</label>
@@ -273,6 +263,8 @@ $banker = [
                                         </div> -->
                                     </div>
                                     <div class="card-footer text-center">
+                                        <input type="hidden" name="loader_bal" id="loader_bal" />
+                                        <input type="hidden" name="cur_balance" id="cur_balance" value="<?= $banker['currentBalance'] ?>" />
                                         <input type="hidden" name="code" id="code" />
                                         <input type="hidden" name="adminId" id="adminId" value="<?= $ids ?>" />
                                         <button type="submit" class="btn btn-primary col-3" id="btnSendLoader">Send</button>
@@ -294,9 +286,15 @@ $banker = [
                                         <thead>
                                             <tr>
                                                 <th>Trans #</th>
-                                                <th>Loader ID</th>
-                                                <th>Name</th>
                                                 <th>Amount</th>
+                                                <th>Commission (10%)</th>
+                                                <th>Current Funds</th>
+                                                <th>New Funds</th>
+                                                <th>Loader</th>
+                                                <th>Current Balance(Loader)</th>
+                                                <th>New Balance(Loader)</th>
+                                                <th>Cash Back</th>
+                                                <th>Total Amount</th>
                                                 <th>Referrence No</th>
                                                 <th>Transaction Type</th>
                                                 <th>Status</th>
@@ -309,20 +307,27 @@ $banker = [
                                             <?php
                                                 foreach ($transactions as $the):
                                                 $datec=date_create($the['updated_date']);
+                                                $per_charge = (float)$the['charge_percent'] * 100;
                                             ?>
 
                                         <tr>
                                         <td><?= $the['id'] ?></td>
-                                        <td><?php echo $the['type'] == 'Wallet' ? $the['user_id'] :" "; ?></td>
-                                            <td><?= $user->getUserName($the['user_id']) ?></td>
-                                            <td>&#8369; <?= number_format($the['amount'],2) ?></td>
+                                        <td>&#8369;<?= number_format($the['amount'],2) ?></td>
+                                        <td>&#8369;<?= number_format($the['comm_percent'],2) ?></td>
+                                        <td>&#8369;<?= number_format($the['cur_funds'],2) ?></td>
+                                        <td>&#8369;<?= number_format($the['new_funds'],2) ?></td>
+                                            <td><?= $the['loader_code'] ?> - <?= $user->getUserName($the['user_id']) ?></td>
+                                            <td>&#8369;<?= number_format($the['cur_loader_bal'],2) ?></td>
+                                            <td>&#8369;<?= number_format($the['new_loader_bal'],2) ?></td>
+                                            <td>&#8369;<?= number_format($the['service_charge'],2) ?> (<?= $per_charge ?>%)</td>
+                                            <td><?= $the['total_amount'] ?></td>
                                             <td><?= $the['ref_no'] ?></td>
                                             <td><?= $the['type'] ?></td>
                                             <td>
                                              <?php echo $the['status'] == 'complete' ? "<span class='badge badge-warning'>" :"<span class='badge badge-danger'>"; ?>
                                                 <?= $the['status'] ?></td>
                                                 <td><?= $the['notes'] ?></td>
-                                            <td><?= date_format($datec,'F j, Y, g:i a') ?></td>
+                                            <td><?= date_format($datec,'m/d/Y, g:i a') ?></td>
                                             <!-- <td><a href="receipt.php?id=<?= $the['id'] ?>" class="btn btn-primary ledgerModalDlg" data-token="$token" data-transactionid="" target="_blank">
                                                  View</a></td> -->
                                         </tr>
@@ -448,11 +453,43 @@ $banker = [
     <script src="https://kit.fontawesome.com/d6574d02b6.js" crossorigin="anonymous"></script>
     <script type="text/javascript">
         $("#lists").DataTable({
-            responsive: false,
-            lengthChange: true,
-            autoWidth: true,
-            ordering: false
-        }).buttons();
+            "responsive": true, "lengthChange": false, "autoWidth": false,"order": [[0, 'desc']],
+      "buttons": [
+        {
+            extend: "print",
+            customize: function(win)
+            {
+ 
+                var last = null;
+                var current = null;
+                var bod = [];
+ 
+                var css = '@page { size: 14in 8.5in;  }',
+                    head = win.document.head || win.document.getElementsByTagName('head')[0],
+                    style = win.document.createElement('style');
+ 
+                style.type = 'text/css';
+                style.media = 'print';
+ 
+                if (style.styleSheet)
+                {
+                  style.styleSheet.cssText = css;
+                }
+                else
+                {
+                  style.appendChild(win.document.createTextNode(css));
+                }
+ 
+                head.appendChild(style);
+         }
+      },  
+        {
+                extend: 'pdfHtml5',
+                orientation: 'landscape',
+                pageSize: 'LEGAL'
+            },
+             "excel", "colvis"]
+    }).buttons().container().appendTo('#lists_wrapper .col-md-6:eq(0)');
 
         $(".select2").select2({
             theme: 'bootstrap4'

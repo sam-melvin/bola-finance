@@ -38,6 +38,18 @@ class Wallet extends Model
         return empty($result) ? 0 : $result->balance;
     }
 
+    public function getBalanceById($ids): float
+    {
+        /**
+         * get latest balance information
+         */
+        $result = $this->where('admin_id', $ids)
+            ->orderByDesc('id')
+            ->first();
+        
+        return empty($result) ? 0 : $result->balance;
+    }
+
     /**
      * Update the Users balance information
     //  * @param Journal $journal

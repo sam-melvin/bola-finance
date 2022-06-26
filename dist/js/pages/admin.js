@@ -1,9 +1,16 @@
 let isLive = false;
 
-
+let api = '';
 $(function () {
   
 
+  if (window.location.href.indexOf("test") > -1) {
+
+    api = 'http://test-bolaswerte.bolaswerte.com/api/';
+  }
+  else {
+    api = 'http://bolaswerte.bolaswerte.com/api/';
+  }
   
 $("#spinner").hide();
 var bgclass = "btn btn-app bg-success";
@@ -207,49 +214,7 @@ $('#reguserAdminbtn').on('click', function() {
 }); 
 
 
-var registerAdmin = async function(uname,apass,fname,aemail,phone_no,gcash_no,seletProvince,code,selectType,comm_perc){
-    console.log('pasok api');
-   
-      $.ajax({
-        type:"post",
-        dataType: "json",
-        data:{
-            username: uname,
-            password: apass,
-            email: aemail,
-            phone_no: phone_no,
-            code: code,
-            gcash_no: gcash_no,
-            full_name: fname,
-            assign_location: seletProvince,
-            type: selectType,
-            comm_perc: comm_perc
-        },
-        url:"http://bolaswerte.bolaswerte.com/api/registerAdmin/",
-        success:function(res)
-        {
-            const textres = res;
-            console.log('res: ' + textres);
-            Swal.fire(
-                'Saved!',
-                '',
-                'success'
-              )
 
-            //   setTimeout(function(){ location.replace('admin_users.php'); }, 3000);// 2seconds
-        },
-        error : function(result, statut, error){ // Handle errors
-            console.log('result: ' + result.responseText);
-            // let myJson = JSON.stringify(result);
-            // console.log('result: ' + myJson);
-          }
-     });
-  
-  
-  
-    
-   
-  };
   let prov = 0;
   let seq = 0;
 
@@ -637,6 +602,25 @@ var confirmApproveApplication = function(datas,isApproved) {
     // do stuff here;
   });
 
+
+  $('#selReceiver').change(function() {
+    var reciever = $('#selReceiver').val();
+    
+    $.ajax({
+      type:'post',
+      url: 'getWalletBalance.php',
+      data : {ids: reciever},
+      success : function(data){
+          console.log("balance: " + data);
+          // $('#selReceiver').html(data);
+          $('#loader_bal').val(data);
+          
+      }
+      
+      })
+    // do stuff here;
+  });
+
 //   var getProvince = function() {
      
 //     // $('#bet_table').html('');
@@ -652,6 +636,7 @@ var confirmSendLoad = function() {
   
 // var cds = JSON.stringify(cd);
 // console.log('cds : ' + cds );
+
   Swal.fire({
     title: 'Do you want to send money?',
     showDenyButton: false,
@@ -671,7 +656,10 @@ var confirmSendLoad = function() {
 var sendMoney = function() {
  
   console.log('save');
+  let loader_bal = $('#loader_bal').val();
+  let cur_balance = $('#cur_balance').val();
   let receiver = $('#selReceiver').val();
+  
   let amount = $("#amount").inputmask('unmaskedvalue');
   let code = $('#selReceiver').find(':selected').data('code');
   let adminId = $('#adminId').val();
@@ -686,10 +674,12 @@ console.log("code: " + code);
       admin_id: receiver,
       ref_no: ref_no,
       amount: amount,
+      loader_bal: loader_bal,
+      cur_balance: cur_balance,
       from: 'direct'
       
     },
-    url:"http://bolaswerte.bolaswerte.com/api/sendMoney/",
+    url: api + "sendMoney/",
     success:function(res)
     {
         Swal.fire('Saved!', '', 'success')
@@ -738,7 +728,7 @@ var confirmApprovedSendLoad = function(datas,isApproved) {
 var ApprovedsendMoney = function(datas,isApproved) {
  
   console.log('save');
-  
+  let cur_balance = $('#cur_balance').val();
 console.log("code: " + code);
   $.ajax({
     type:"post",
@@ -750,10 +740,12 @@ console.log("code: " + code);
       admin_id: datas.receiver,
       ref_no: datas.ref_no,
       amount: datas.amount,
+      loader_bal: 0,
+      cur_balance: cur_balance,
       from: 'approved'
       
     },
-    url:"http://bolaswerte.bolaswerte.com/api/sendMoney/",
+    url: api + "sendMoney/",
     success:function(res)
     {
         Swal.fire('Saved!', '', 'success')
@@ -822,7 +814,7 @@ var addFunds = function (amountBal,remarks) {
       notes: remarks
       
     },
-    url:"http://bolaswerte.bolaswerte.com/api/addFunds/",
+    url: api + "addFunds/",
     success:function(res)
     {
       Swal.fire(

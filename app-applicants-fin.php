@@ -4,6 +4,7 @@ use App\Models\Applicants;
 use App\Models\Province;
 use App\Models\Countries;
 use App\Models\UsersAccess;
+use App\Models\CashPool;
 
 require 'bootstrap.php';
 checkSessionRedirect(SESSION_UID, PAGE_LOCATION_LOGIN);
@@ -64,6 +65,11 @@ $results = Applicants::where('status', $status)
             
         ]);
     }
+    
+$cashpool = new CashPool();
+$banker = [
+      'currentBalance' => $cashpool->getCashPool()
+];
 ?>
 
 <!DOCTYPE html>
@@ -169,6 +175,24 @@ $results = Applicants::where('status', $status)
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>&#8369; <?= number_format($banker['currentBalance'], 2) ?></h3>
+                        <p>Total Finance Balance</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    
+                    <!-- <a href="wallet_trans.php" class="small-box-footer" data-toggle="modal" data-target="#payModal">
+                            Add Funds <i class="fa-solid fa-user-plus"></i>
+                    </a> -->
+                </div>
+            </div>
+
+        </div>
         <!-- Small boxes (Stat box) -->
         <div class="row">
           <div class="col-12">
@@ -179,7 +203,7 @@ $results = Applicants::where('status', $status)
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                    
+                    <input type="hidden" name="cur_balance" id="cur_balance" value="<?= $banker['currentBalance'] ?>" />
                       <table id="example1" class="table table-bordered table-striped">
                         <thead>
                         <tr>

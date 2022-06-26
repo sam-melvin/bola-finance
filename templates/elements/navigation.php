@@ -30,6 +30,13 @@ $navTrees = [
         'type' => USER_FINANCE
     ],
     [
+        'title' => 'Cash In',
+        'link' => 'cashin.php',
+        'page' => 'cashin',
+        'icon' => 'fa-circle',
+        'type' => USER_FINANCE
+    ],
+    [
         'title' => 'Admin User',
         'link' => 'admin_users.php',
         'page' => 'admin_users',

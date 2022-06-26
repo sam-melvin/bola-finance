@@ -1,8 +1,8 @@
 <?php
 use App\Models\User;
 use App\Models\CashIn;
+use App\Models\Wallet;
 use App\Models\BolaUsers;
-use App\Models\Transactions;
 use App\Models\UsersAccess;
 
 require 'bootstrap.php';
@@ -27,39 +27,33 @@ $_SESSION['last_page'] = $_SERVER['SCRIPT_URI'];
 $ids = $_SESSION[SESSION_UID];
 $lists = [];
 $now = new DateTime('now');
+
+$cashin = new Cashin();
 $loadercode = 'BSL-43';
-$user = new User();
-$bolauser = new BolaUsers();
-$results = Transactions::where('loader_code', $loadercode)
-        ->where(function ($query) {
-            $query->where('status', 'sent')->orWhere('status', 'complete');
-        })
-        ->where(function ($query) {
-            $query->where('type', 'Wallet')->orWhere('type', 'Cash In');
-        })
-    // ->where('date_submit', $now->format('m-d-Y'))
-    // ->where('draw_number', WinningNumber::getNextDrawNumber())
-    ->orderByDesc('updated_date')
-    ->get();
-
-
-    foreach ($results as $trans) {
-        // $fname = $cash->first_name. ' '.$cash->last_name;
+$result = $cashin->getCashinLogs($loadercode);
+  
+    foreach ($result as $cash) {
+        $fname = $cash->first_name. ' '.$cash->last_name;
         // echo 'wew: ' . $bets->id;
         array_push($lists, [
-            'id' => $trans->id,
-            'user_id' => $trans->user_id,
-            'amount' => $trans->amount,
-            'type' => $trans->type,
-            'ref_no' => $trans->ref_no,
-            'status' => $trans->status,
-            'updated_date' => $trans->updated_date,
+            'id' => $cash->id,
+            'user_id' => $cash->user_id,
+            'code' => $cash->loader_id,
+            'fname' => $fname,
+            'address' => $cash->address,
+            'amount' => $cash->cash,
+            'ref_no' => $cash->ref_no,
+            'status' => $cash->status,
+            'date_created' => $cash->date_created,
             
         ]);
     }
 
-
-
+$userLists = BolaUsers::where('loader_code', $loadercode)->get();
+$wallet = new Wallet();
+$wallet = [
+  'currentBalance' => $wallet->getBalance($loggedUser)
+];
 ?>
 
 
@@ -144,8 +138,8 @@ $results = Transactions::where('loader_code', $loadercode)
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item active">Cashin</li>
-              <li class="breadcrumb-item">Wallet History</li>
+              <li class="breadcrumb-item">Cashin</li>
+              <li class="breadcrumb-item"></li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -162,25 +156,31 @@ $results = Transactions::where('loader_code', $loadercode)
           <div class="col-12">
               <div class="card">
                     <div class="card-header">
-                      <h3 class="card-title">Wallet History</h3>
-                        
+                      <h3 class="card-title">Top Up Logs</h3>
+                        <div class="card-tools">
+                            <!-- <div class="btn-group">
+                                <a class="btn btn-primary" href="sent_history.php">
+                                    <i class="fas fa-history"></i>&nbsp;Top Up History
+                                </a>
+                                <a class="btn btn-primary ml-2" href="sent_rs_history.php">
+                                    <i class="fas fa-coins"></i>&nbsp;Report Summary History
+                                </a>
+                            </div> -->
+                        </div>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
                       <table id="example1" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                        <th>Trans #</th>
+                        <th>Request ID</th>
                         <th>User ID</th>
                         <th>Name</th>
                           <th>Amount</th>
-                          <!-- <th>Address</th> -->
-                          <th>Type</th>
+                          <th>Address</th>
                           <th>Ref No.</th>
                           <th>Status</th>
-                          <th>Remarks</th>
-                          <th>Trans Date</th>
-                          <!-- <th></th> -->
+                          <th>Date Requested</th>
                           
                         </tr>
                         </thead>
@@ -189,30 +189,20 @@ $results = Transactions::where('loader_code', $loadercode)
                         <?php
                                                 foreach ($lists as $the):
 
-                                                $datec=date_create($the['updated_date']);
+                                                $datec=date_create($the['date_created']);
                                                 
 ?>
                                                 
                                             <tr>
                                             <td><?= $the['id'] ?></td>
                                             <td><?= $the['user_id'] ?></td>
-                                            
-                                            <td>
-                                                <?php echo $the['type'] == 'Cash In' ? $bolauser->getUserName($the['user_id']) :$user->getUserName($the['user_id']); ?>
-                                            </td>
-                                            <td>&#8369; <?= number_format($the['amount'],2) ?></td>
-                                            <td><?= $the['type'] ?></td>
+                                            <td><?= $the['fname'] ?></td>
+                                            <td>&#8369; <?=  number_format($the['amount'],2) ?></td>
+                                            <td><?= $the['address'] ?></td>
                                             <td><?= $the['ref_no'] ?></td>
-                                            <td>
-                                            <?php echo $the['status'] == 'sent' ? "<span class='badge badge-warning'>" :"<span class='badge badge-primary'>"; ?>
-                                                <?= $the['status'] ?></span>
-                                             </td>
-                                            
-                                                <?php echo $the['status'] == 'sent' ? "<td class='text-danger'>Deducted" : "<td class='text-warning'>Added"; ?>
-                                            </td>
+                                            <td><?= $the['status'] ?></td>
                                             <td><?= date_format($datec,'F j, Y, g:i a') ?></td>
                                                       
-                                            <!-- <td></td> -->
                                                </tr>
 
                                                     
@@ -344,7 +334,7 @@ $results = Transactions::where('loader_code', $loadercode)
 <script type="text/javascript"> 
   $(function () {
     $("#example1").DataTable({
-      "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1, "order": [[0, 'desc']],
+      "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1,"order": [[0, 'desc']],
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     
     

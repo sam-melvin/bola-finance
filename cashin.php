@@ -1,12 +1,13 @@
 <?php
 use App\Models\User;
 use App\Models\CashIn;
+use App\Models\Wallet;
 use App\Models\BolaUsers;
-use App\Models\Transactions;
 use App\Models\UsersAccess;
 
 require 'bootstrap.php';
 checkSessionRedirect(SESSION_UID, PAGE_LOCATION_LOGIN);
+
 $loggedUser = User::find($_SESSION[SESSION_UID]);
 $page = 'cashin';
 $pagetype = 5;
@@ -24,42 +25,39 @@ $userAccess = UsersAccess::create([
 
 $_SESSION['last_page'] = $_SERVER['SCRIPT_URI'];
 
+$status = CashIn::STATUS_PENDING;
+
 $ids = $_SESSION[SESSION_UID];
 $lists = [];
 $now = new DateTime('now');
+
+$cashin = new Cashin();
 $loadercode = 'BSL-43';
-$user = new User();
-$bolauser = new BolaUsers();
-$results = Transactions::where('loader_code', $loadercode)
-        ->where(function ($query) {
-            $query->where('status', 'sent')->orWhere('status', 'complete');
-        })
-        ->where(function ($query) {
-            $query->where('type', 'Wallet')->orWhere('type', 'Cash In');
-        })
-    // ->where('date_submit', $now->format('m-d-Y'))
-    // ->where('draw_number', WinningNumber::getNextDrawNumber())
-    ->orderByDesc('updated_date')
-    ->get();
-
-
-    foreach ($results as $trans) {
-        // $fname = $cash->first_name. ' '.$cash->last_name;
+$result = $cashin->getCashinReq($loadercode,$status);
+  
+    foreach ($result as $cash) {
+        $fname = $cash->first_name. ' '.$cash->last_name;
         // echo 'wew: ' . $bets->id;
         array_push($lists, [
-            'id' => $trans->id,
-            'user_id' => $trans->user_id,
-            'amount' => $trans->amount,
-            'type' => $trans->type,
-            'ref_no' => $trans->ref_no,
-            'status' => $trans->status,
-            'updated_date' => $trans->updated_date,
+            'id' => $cash->id,
+            'user_id' => $cash->user_id,
+            'code' => $cash->loader_id,
+            'fname' => $fname,
+            'address' => $cash->address,
+            'amount' => $cash->cash,
+            'ref_no' => $cash->ref_no,
+            'status' => $cash->status,
+            'date_created' => $cash->date_created,
             
         ]);
     }
 
-
-
+$userLists = BolaUsers::where('loader_code',$loadercode)->get();
+$wallet = new Wallet();
+$loaderid = '47';
+$wallet = [
+  'currentBalance' => $wallet->getBalanceById($loaderid)
+];
 ?>
 
 
@@ -101,9 +99,12 @@ $results = Transactions::where('loader_code', $loadercode)
   <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
 
   
+
+  
 </head>
 <!-- <body class="hold-transition sidebar-mini layout-fixed"> -->
 <body class="hold-transition sidebar-mini layout-fixed">
+
 <div class="wrapper">
 
   <!-- Preloader -->
@@ -119,6 +120,7 @@ $results = Transactions::where('loader_code', $loadercode)
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
+      
     </ul>
 
     <?php
@@ -144,8 +146,8 @@ $results = Transactions::where('loader_code', $loadercode)
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item active">Cashin</li>
-              <li class="breadcrumb-item">Wallet History</li>
+              <li class="breadcrumb-item">Cashin</li>
+              <li class="breadcrumb-item"></li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -156,31 +158,94 @@ $results = Transactions::where('loader_code', $loadercode)
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
+      <div class="row">
       
+      <!-- <div class="fb-share-button" data-href="http://new.bolaswerte.com/" data-layout="button_count" data-size="large"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2Fplugins%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a></div> -->
+
+
+      <!-- <div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v8.0" nonce="dilSYGI6"></script>
+<div class="fb-share-button" data-href="http://new.bolaswerte.com/" data-layout="button" data-size="small">
+<a target="_blank" href="http://new.bolaswerte.com/" class="fb-xfbml-parse-ignore">Share</a>
+</div> -->
+
+<!-- <a href="fb-messenger://share/?link= http://new.bolaswerte.com">Send In Messenger</a>  -->
+
+<!-- <a href="#" id="sengMsg">Send In Messenger</a> -->
+
+          <div class="col">
+              <div class="small-box bg-info">
+                  <div class="inner">
+                      <h3>&#8369; <?= number_format($wallet['currentBalance'], 2) ?></h3>
+                      <p>Current Wallet Balance</p>
+                  </div>
+                  <div class="icon">
+                      <i class="fas fa-coins"></i>
+                  </div>
+                  <a href="wallet_trans.php" class="small-box-footer">
+                      View <i class="fas fa-arrow-circle-right"></i>
+                  </a>
+              </div>
+          </div>
+          <div class="col">
+              <div class="small-box bg-warning">
+                  <div class="inner">
+                      <h3><?= count($userLists) ?></h3>
+                      <p>Assigned Users</p>
+                  </div>
+                  <div class="icon">
+                      <i class="ion ion-person-add"></i>
+                  </div>
+                  <a href="view_assigned.php" class="small-box-footer">
+                      View <i class="fas fa-arrow-circle-right"></i>
+                  </a>
+              </div>
+          </div>
+          <!-- <div class="col">
+              <div class="small-box bg-success">
+                  <div class="inner">
+                      <h3> 12 </h3>
+                      <p>Wallet Transactions</p>
+                  </div>
+                  <div class="icon">
+                      <i class="fas fa-money-bill-wave-alt"></i>
+                  </div>
+                  <a href="transaction.php" class="small-box-footer">
+                      View <i class="fas fa-arrow-circle-right"></i>
+                  </a>
+              </div>
+          </div> -->
+      </div>
         <!-- Small boxes (Stat box) -->
         <div class="row">
           <div class="col-12">
               <div class="card">
                     <div class="card-header">
-                      <h3 class="card-title">Wallet History</h3>
-                        
+                      <h3 class="card-title">Top Up Request</h3>
+                        <div class="card-tools">
+                            <div class="btn-group">
+                                <a class="btn btn-primary" href="cashin-trans.php">
+                                    <i class="fas fa-history"></i>&nbsp;Top Up Logs
+                                </a>
+                                <!-- <a class="btn btn-primary ml-2" href="sent_rs_history.php">
+                                    <i class="fas fa-coins"></i>&nbsp;Report Summary History
+                                </a> -->
+                            </div>
+                        </div>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
                       <table id="example1" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                        <th>Trans #</th>
                         <th>User ID</th>
                         <th>Name</th>
                           <th>Amount</th>
-                          <!-- <th>Address</th> -->
-                          <th>Type</th>
+                          <th>Address</th>
                           <th>Ref No.</th>
                           <th>Status</th>
-                          <th>Remarks</th>
-                          <th>Trans Date</th>
-                          <!-- <th></th> -->
+                          <th>Date Requested</th>
+                          <th></th>
                           
                         </tr>
                         </thead>
@@ -189,30 +254,43 @@ $results = Transactions::where('loader_code', $loadercode)
                         <?php
                                                 foreach ($lists as $the):
 
-                                                $datec=date_create($the['updated_date']);
-                                                
+                                                $datec=date_create($the['date_created']);
+                                                $datas = array();
+                                                $cpid = $the['id'];
+                                                $datas['admin_id'] = $ids;
+                                                $datas['user_id'] = $the['user_id'];
+                                                $datas['code'] = $the['code'];
+                                                $datas['cash'] = $the['amount'];
+                                                $datas['ref_no'] = $the['ref_no'];
+                                                $datas['cash_in_type'] = 'loader';
+                                                $datas['balance'] = $wallet['currentBalance'];
+                                                $myJSONdatas=json_encode($datas);  
 ?>
                                                 
                                             <tr>
-                                            <td><?= $the['id'] ?></td>
                                             <td><?= $the['user_id'] ?></td>
-                                            
-                                            <td>
-                                                <?php echo $the['type'] == 'Cash In' ? $bolauser->getUserName($the['user_id']) :$user->getUserName($the['user_id']); ?>
-                                            </td>
-                                            <td>&#8369; <?= number_format($the['amount'],2) ?></td>
-                                            <td><?= $the['type'] ?></td>
+                                            <td><?= $the['fname'] ?></td>
+                                            <td>&#8369; <?=  number_format($the['amount'],2) ?></td>
+                                            <td><?= $the['address'] ?></td>
                                             <td><?= $the['ref_no'] ?></td>
-                                            <td>
-                                            <?php echo $the['status'] == 'sent' ? "<span class='badge badge-warning'>" :"<span class='badge badge-primary'>"; ?>
-                                                <?= $the['status'] ?></span>
-                                             </td>
-                                            
-                                                <?php echo $the['status'] == 'sent' ? "<td class='text-danger'>Deducted" : "<td class='text-warning'>Added"; ?>
-                                            </td>
+                                            <td><?= $the['status'] ?></td>
                                             <td><?= date_format($datec,'F j, Y, g:i a') ?></td>
                                                       
-                                            <!-- <td></td> -->
+                                            <td>
+                                                <div class='btn-group'>
+                                                <button type='button' class='btn btn-info'>Action</button>
+                                                <button type='button' class='btn btn-info dropdown-toggle dropdown-icon' data-toggle='dropdown'>
+                                                  <span class='sr-only'>Toggle Dropdown</span>
+                                                </button>
+                                                <div class='dropdown-menu' role='menu'>
+                                                 <?php 
+                                                 echo "<a class='dropdown-item' href='#' class='text-success' onclick='approvedRequest($cpid,$myJSONdatas,true)'>Sent</a>
+                                                  <a class='dropdown-item' href='#' class='text-danger' onclick='approvedRequest($cpid,$myJSONdatas,false)'>Decline</a>";
+                                                  ?>
+                                                </div>
+                                              </div>
+                                                
+                                                </td>
                                                </tr>
 
                                                     
@@ -342,9 +420,39 @@ $results = Transactions::where('loader_code', $loadercode)
 <!-- Toastr -->
 <script src="plugins/toastr/toastr.min.js"></script>
 <script type="text/javascript"> 
+
+// $('#sengMsg').on('click', function() {
+// const title = 'Bola Swerte';
+// const url = 'https://new.bolaswerte.com/';
+
+// console.log('pasok');
+// if(navigator.share) {
+//     navigator.share({
+//       title: `${title}`,
+//       url: `${url}`
+//     }).then(() => {
+//       console.log('thanks for sharing!');
+//     })
+//     .catch(console.error);
+// }
+// else {
+//   console.log('else');
+// }
+
+// });
+
+  // var sendMess = function(ids) {
+  //     FB.ui({
+  //       method: 'send',
+  //       link: 'http://new.bolaswerte.com/',
+  //     });
+
+  //   };
+
+
   $(function () {
     $("#example1").DataTable({
-      "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1, "order": [[0, 'desc']],
+      "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1,"order": [[6, 'desc']],
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     
     

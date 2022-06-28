@@ -728,6 +728,7 @@ var confirmApprovedSendLoad = function(datas,isApproved) {
 var ApprovedsendMoney = function(datas,isApproved) {
  
   console.log('save');
+  console.log('user_id' + datas.receiver);
   let cur_balance = $('#cur_balance').val();
 console.log("code: " + code);
   $.ajax({
@@ -737,12 +738,22 @@ console.log("code: " + code);
       ids: datas.ids,
       code:datas.code,
       financer_id: datas.admin_id,
-      admin_id: datas.receiver,
+      user_id: datas.receiver,
       ref_no: datas.ref_no,
       amount: datas.amount,
       loader_bal: 0,
       cur_balance: cur_balance,
       from: 'approved'
+
+      // ids: datas.ids,
+      // code:datas.code,
+      // financer_id: datas.admin_id,
+      // admin_id: datas.receiver,
+      // ref_no: datas.ref_no,
+      // amount: datas.amount,
+      // loader_bal: 0,
+      // cur_balance: cur_balance,
+      // from: 'approved'
       
     },
     url: api + "sendMoney/",
@@ -758,6 +769,7 @@ console.log("code: " + code);
     },
     error : function(result, statut, error){ // Handle errors
       console.log('result: ' + result.responseText);
+      Swal.fire('Error Occur! Contact your IT Administrator.', 'Application not process', 'error')
       // let myJson = JSON.stringify(result);
       // console.log('result: ' + myJson);
     },

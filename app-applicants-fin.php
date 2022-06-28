@@ -1,5 +1,6 @@
 <?php
 use App\Models\User;
+use App\Models\BolaUsers;
 use App\Models\Applicants;
 use App\Models\Province;
 use App\Models\Countries;
@@ -28,6 +29,7 @@ $_SESSION['last_page'] = $_SERVER['SCRIPT_URI'];
 $country = new Countries();
 $province = new Province();
 $user = new User();
+$bolausers = new BolaUsers();
 
 $ids = $_SESSION[SESSION_UID];
 $status = Applicants::STATUS_APPROVED;
@@ -59,6 +61,7 @@ $results = Applicants::where('status', $status)
             'amount' => $appli->amount_deposit,
             'ref_no' => $appli->ref_no,
             'username' => $appli->username,
+            'invitor_id' => $appli->invitor_id,
             'lemail' => $appli->lemail,
             'status' => $appli->status,
             'date_created' => $appli->date_created
@@ -220,6 +223,7 @@ $banker = [
                           <th>Amount Deposit</th>
                           <th>Reference No.</th>
                           <th>Username</th>
+                          <th>Invitor ID</th>
                           <th>Email</th>
                           <th>Date Submitted</th>
                           <th></th>
@@ -232,8 +236,8 @@ $banker = [
                                 <?php
                                     foreach ($lists as $the):
                                         $datec = date_create($the['date_created']);
-                                        $code = $user->getUserCode($the['username']);
-                                        $recid = $user->getUserID($the['username']);
+                                        $code = $bolausers->getUserCode($the['username']);
+                                        $recid = $bolausers->getUserID($the['username']);
                                         $datas = array();
                                         $datas['ids'] = $the['id'];
                                         $datas['admin_id'] = $ids;
@@ -258,6 +262,7 @@ $banker = [
                                             <td>&#8369; <?= number_format($the['amount'],2) ?></td>
                                             <td><?= $the['ref_no'] ?></td>
                                             <td><?= $the['username'] ?></td>
+                                            <td><?= $the['invitor_id'] ?></td>
                                             <td><?= $the['lemail'] ?></td>
                                             <td><?= date_format($datec,'F j, Y, g:i a') ?></td>
 

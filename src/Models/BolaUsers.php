@@ -37,6 +37,29 @@ class BolaUsers extends Model
         return empty($result) ? '' : $fname;
     }
 
+    public function getUserID($username)
+    {
+        /**
+         * get latest balance information
+         */
+        $result = $this->where('username', $username)
+            ->orderByDesc('id')
+            ->first();
+        
+        return empty($result) ? '' : $result->id;
+    }
+
+    public function getUserCode($username)
+    {
+        /**
+         * get latest balance information
+         */
+        $result = $this->where('username', $username)
+            ->orderByDesc('id')
+            ->first();
+        
+        return empty($result) ? '' : $result->invitation_code;
+    }
     
     /**
      * Set the table name

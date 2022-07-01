@@ -44,6 +44,18 @@ class UserCash extends Model
         return empty($result) ? 0 : $total_cash;
     }
 
+    public function getBalanceById($ids): float
+    {
+        /**
+         * get latest balance information
+         */
+        $result = $this->where('user_id', $ids)
+            ->orderByDesc('id')
+            ->first();
+        
+        return empty($result) ? 0 : $result->total_cash;
+    }
+
     /**
      * Update the Users balance information
     //  * @param Journal $journal

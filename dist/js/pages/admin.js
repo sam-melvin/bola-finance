@@ -621,16 +621,24 @@ var confirmApproveApplication = function(datas,isApproved) {
     // do stuff here;
   });
 
-//   var getProvince = function() {
-     
-//     // $('#bet_table').html('');
-//     if(prov == 0){
-        
-//     prov = 1;
-//     }
-    
-// };
 
+  var getloaderBalance = function(reciever) {
+    var balance;
+    $.ajax({
+    type:'post',
+      url: 'getWalletBalance.php',
+      data : {ids: reciever},
+      async:false,
+      success : function(data){
+          console.log("balance: " + data);
+          // $('#selReceiver').html(data);
+          // $('#loader_bal').val(data);
+          balance = data;
+      }
+    })
+
+    return balance;
+  }
 
 var confirmSendLoad = function() {
   
@@ -705,10 +713,35 @@ console.log("code: " + code);
 }
 
 
-var confirmApprovedSendLoad = function(datas,isApproved) {
+var confirmApproveLoadReq = function(datas,isApproved) {
+  Swal.fire({
+    title: 'Enter referrence Number',
+    input: 'text',
+    inputAttributes: {
+      autocapitalize: 'off'
+    },
+    showCancelButton: true,
+    confirmButtonText: 'Submit',
+    showLoaderOnConfirm: true,
+    preConfirm: (refer) => {
+      if(refer != '') {
+        confirmApprovedSendLoad(refer,datas,isApproved)
+      }
+      else {
+        Swal.fire('Empty Field! process not saved.', '', 'error')
+      }
+    },
+    allowOutsideClick: () => !Swal.isLoading()
+  }).then((result) => {
+    
+  })
+
+};
+
+var confirmApprovedSendLoad = function(refer,datas,isApproved) {
   
   // var cds = JSON.stringify(cd);
-  // console.log('cds : ' + cds );
+ 
     Swal.fire({
       title: 'Do you want to send money?',
       showDenyButton: false,
@@ -718,17 +751,17 @@ var confirmApprovedSendLoad = function(datas,isApproved) {
     }).then((result) => {
       /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
-          ApprovedsendMoney(datas,isApproved);
+          ApprovedsendMoney(refer,datas,isApproved);
       } else if (result.isDenied) {
         Swal.fire('Changes are not saved', '', 'info')
       }
     })
   }
 
-var ApprovedsendMoney = function(datas,isApproved) {
- 
+var ApprovedsendMoney = function(refer,datas,isApproved) {
+ let loader_bal = getloaderBalance(datas.receiver);
   console.log('save');
-  console.log('user_id' + datas.receiver);
+  console.log('datas.invitor_id: ' + datas.invitor_id);
   let cur_balance = $('#cur_balance').val();
 console.log("code: " + code);
   $.ajax({
@@ -739,9 +772,10 @@ console.log("code: " + code);
       code:datas.code,
       financer_id: datas.admin_id,
       user_id: datas.receiver,
-      ref_no: datas.ref_no,
+      ref_no: refer,
       amount: datas.amount,
-      loader_bal: 0,
+      loader_bal: loader_bal,
+      invitor_id: datas.invitor_id,
       cur_balance: cur_balance,
       from: 'approved'
 
@@ -762,7 +796,7 @@ console.log("code: " + code);
         Swal.fire('Saved!', '', 'success')
       setTimeout(function(){ location.reload(); }, 3000);// 2seconds
         const myJson = res;
-        const textres = res.data;
+        // const textres = JSON.stringify(res.data);
         console.log('res: ' + myJson);
         
         

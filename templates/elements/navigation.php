@@ -23,6 +23,13 @@ $navTrees = [
         'type' => USER_FINANCE
     ],
     [
+        'title' => 'Cash In Loader',
+        'link' => 'cashinloader.php',
+        'page' => 'cashinloader',
+        'icon' => 'fa-circle',
+        'type' => USER_FINANCE
+    ],
+    [
         'title' => 'Withdraw',
         'link' => 'withdraw.php',
         'page' => 'withdraw',

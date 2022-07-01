@@ -2,13 +2,13 @@
 // force redirect!
 
 use App\Models\User;
-use App\Models\Wallet;
+use App\Models\UserCash;
 
 require 'bootstrap.php';
 
-$wallet = new Wallet();
+$usercash = new UserCash();
 
-$balance = $wallet->getBalanceById($_POST['ids']);
+$balance = $usercash->getBalanceById($_POST['ids']);
 
 
 

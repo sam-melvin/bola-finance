@@ -16,11 +16,11 @@ class CashIn extends Model
     const STATUS_DECLINED = 'declined';
 
 
-    public function getCashinReq ($code,$status) {
+    public function getCashinReq ($status) {
         $result = $this->join('users', 'user_cash_in.user_id', '=', 'users.id')
-        ->select('user_cash_in.*', 'users.first_name', 'users.last_name', 'users.address')
+        ->select('user_cash_in.*', 'users.first_name', 'users.last_name', 'users.address','users.invitation_code','users.invitor_id')
         ->where('user_cash_in.status', '=', $status)
-        ->where('user_cash_in.loader_id', '=', $code)
+        ->where('user_cash_in.type', '=', 3)
         ->get();
 
 

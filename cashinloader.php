@@ -34,7 +34,7 @@ $now = new DateTime('now');
 
 $cashin = new Cashin();
 $loadercode = 'BSL-43';
-$result = $cashin->getCashinReq($status);
+$result = $cashin->getCashinReqloader($status);
   
     foreach ($result as $cash) {
         $fname = $cash->first_name. ' '.$cash->last_name;

@@ -277,7 +277,7 @@ $results = WinningNumbers::where('status', 1)
 <script type="text/javascript"> 
   $(function () {
     $("#example1").DataTable({
-      "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1, "order": [[3, 'desc']],
+      "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1, "order": [[0, 'desc']],
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     
     

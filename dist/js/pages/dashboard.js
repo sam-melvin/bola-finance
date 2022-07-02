@@ -415,7 +415,7 @@ var approvedWithDrawRequest = async function(ids,datas,isApproved) {
       success:function(res)
       {
         Swal.fire('Saved!', '', 'success')
-        // setTimeout(function(){ location.reload(); }, 2000);// 2seconds
+        setTimeout(function(){ location.reload(); }, 2000);// 2seconds
           const myJson = res;
           let textson = JSON.stringify(myJson);
           console.log('res: ' + textson);

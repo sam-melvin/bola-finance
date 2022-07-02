@@ -2,6 +2,7 @@
 use App\Models\User;
 use App\Models\Withdraw;
 use App\Models\UsersAccess;
+use App\Models\CashPool;
 
 require 'bootstrap.php';
 checkSessionRedirect(SESSION_UID, PAGE_LOCATION_LOGIN);
@@ -43,13 +44,19 @@ $result = $withdraw->getWithdrawReq($ids,$status);
             'amount' => $withdraw->cash,
             'acct_name' => $withdraw->account_name,
             'acct_no' => $withdraw->account_number,
+            'type' => $withdraw->type,
             'cash_out_type' => $withdraw->cash_out_type,
             'status' => $withdraw->status,
             'date_created' => $withdraw->date_created,
             
         ]);
     }
-   
+
+$cashpool = new CashPool();
+$banker = [
+    'currentBalance' => $cashpool->getCashPool()
+];
+
 ?>
 
 <!DOCTYPE html>
@@ -92,7 +99,7 @@ $result = $withdraw->getWithdrawReq($ids,$status);
   
 </head>
 <!-- <body class="hold-transition sidebar-mini layout-fixed"> -->
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini sidebar-collapse">
 <div class="wrapper">
 
   <!-- Preloader -->
@@ -146,6 +153,24 @@ $result = $withdraw->getWithdrawReq($ids,$status);
       <div class="container-fluid">
         <!-- Small boxes (Stat box) -->
         <div class="row">
+                        <div class="col">
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3>&#8369; <?= number_format($banker['currentBalance'], 2) ?></h3>
+                                    <p>Total Finance Balance</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                               
+                                <!-- <a href="wallet_trans.php" class="small-box-footer" data-toggle="modal" data-target="#payModal">
+                                        Add Funds <i class="fa-solid fa-user-plus"></i>
+                                </a> -->
+                            </div>
+                        </div>
+                        
+                    </div>
+        <div class="row">
           <div class="col-12">
               <div class="card">
                     <div class="card-header">
@@ -163,9 +188,11 @@ $result = $withdraw->getWithdrawReq($ids,$status);
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
+                    <input type="hidden" name="cur_balance" id="cur_balance" value="<?= $banker['currentBalance'] ?>" />
                       <table id="example1" class="table table-bordered table-striped">
                         <thead>
                         <tr>
+                            <th>Withdraw ID</th>
                             <th>User ID</th>
                             <th>Requested By</th>
                             <th>Address</th>
@@ -173,6 +200,7 @@ $result = $withdraw->getWithdrawReq($ids,$status);
                             <th>Account Name</th>
                             <th>Account No.</th>
                             <th>Type</th>
+                            <th>From</th>
                             <th>Status</th>
                           <th>Date Requested</th>
                           <th></th>
@@ -198,10 +226,12 @@ $result = $withdraw->getWithdrawReq($ids,$status);
                                             $datas['cash_out_type'] = $the['cash_out_type'];
                                             $datas['account_name'] = $the['acct_name'];
                                             $datas['account_number'] = $the['acct_no'];
+                                            $datas['type'] = $the['type'];
                                             $myJSONdatas=json_encode($datas); 
                             ?>
                                             
                                         <tr>
+                                        <td><?= $the['id'] ?></td>
                                         <td><?= $the['user_id'] ?></td>
                                         <td><?= $the['fname'] ?></td>
                                         <td><?= $the['address'] ?></td>
@@ -209,6 +239,7 @@ $result = $withdraw->getWithdrawReq($ids,$status);
                                         <td><?= $the['acct_name'] ?></td>
                                         <td><?= $the['acct_no'] ?></td>
                                         <td><?= $the['cash_out_type'] ?></td>
+                                        <td><?= $the['type'] == '3' ? 'Loader' : 'Member' ?></td>
                                         <td><?= $the['status'] ?></td>
                                         <td><?= date_format($datec,'F j, Y, g:i a') ?></td>
                                                       
@@ -348,7 +379,7 @@ $result = $withdraw->getWithdrawReq($ids,$status);
 <script type="text/javascript"> 
   $(function () {
     $("#example1").DataTable({
-      "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1
+      "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1,"order": [[0, 'desc']]
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     
     

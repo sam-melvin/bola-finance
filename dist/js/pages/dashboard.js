@@ -389,7 +389,7 @@ var approvedWithDrawRequest = async function(ids,datas,isApproved) {
   };
 
   var saveWithdraw = async function(ids,datas,isApproved) {
-    
+    let cur_bal = $('#cur_balance').val();
     let status = 'declined';
     if(isApproved)
       status = 'sent';
@@ -406,16 +406,19 @@ var approvedWithDrawRequest = async function(ids,datas,isApproved) {
         account_name: datas.account_name,
         account_number: datas.account_number,
         cash: datas.cash,
+        cur_funds:cur_bal,
         cash_out_type: datas.cash_out_type,
+        type:'3',
         status: status
       },
-      url:"http://bolaswerte.bolaswerte.com/api/withDraw/",
+      url: api + "withDraw/",
       success:function(res)
       {
         Swal.fire('Saved!', '', 'success')
-        setTimeout(function(){ location.reload(); }, 2000);// 2seconds
+        // setTimeout(function(){ location.reload(); }, 2000);// 2seconds
           const myJson = res;
-          console.log('res: ' + myJson);
+          let textson = JSON.stringify(myJson);
+          console.log('res: ' + textson);
       },
       error : function(result, statut, error){ // Handle errors
         console.log('result: ' + result.responseText);

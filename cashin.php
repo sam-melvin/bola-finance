@@ -32,7 +32,7 @@ $lists = [];
 $now = new DateTime('now');
 
 $cashin = new Cashin();
-$loadercode = 'BSL-43';
+$loadercode = 'bspeter';
 $result = $cashin->getCashinReq($loadercode,$status);
   
     foreach ($result as $cash) {
@@ -54,7 +54,7 @@ $result = $cashin->getCashinReq($loadercode,$status);
 
 $userLists = BolaUsers::where('loader_code',$loadercode)->get();
 $wallet = new Wallet();
-$loaderid = '47';
+$loaderid = '3';
 $wallet = [
   'currentBalance' => $wallet->getBalanceById($loaderid)
 ];

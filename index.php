@@ -4,6 +4,7 @@ use App\Models\CashPool;
 use App\Models\Province;
 use App\Models\Transactions;
 use App\Models\UsersAccess;
+use App\Models\BolaUsers;
 
 require 'bootstrap.php';
 
@@ -40,7 +41,7 @@ $results = Province::where('country_id', 174)
     ->get();
 
 $user = new User();
-$bolauser = new BolaUser();
+$bolauser = new BolaUsers();
 // $transactions = Journal::where('performed_by', $loggedUser->id)
 //     ->orWhere('user_id', $loggedUser->id)
 //     ->orderByDesc('id')

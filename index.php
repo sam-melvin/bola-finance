@@ -40,6 +40,7 @@ $results = Province::where('country_id', 174)
     ->get();
 
 $user = new User();
+$bolauser = new BolaUser();
 // $transactions = Journal::where('performed_by', $loggedUser->id)
 //     ->orWhere('user_id', $loggedUser->id)
 //     ->orderByDesc('id')
@@ -316,7 +317,7 @@ $banker = [
                                         <td>&#8369;<?= number_format($the['comm_percent'],2) ?></td>
                                         <td>&#8369;<?= number_format($the['cur_funds'],2) ?></td>
                                         <td>&#8369;<?= number_format($the['new_funds'],2) ?></td>
-                                            <td><?= $the['loader_code'] ?> - <?= $user->getUserName($the['user_id']) ?></td>
+                                            <td><?= $the['loader_code'] ?> - <?= $bolauser->getUserNameByCode($the['loader_code']) ?></td>
                                             <td>&#8369;<?= number_format($the['cur_loader_bal'],2) ?></td>
                                             <td>&#8369;<?= number_format($the['new_loader_bal'],2) ?></td>
                                             <td>&#8369;<?= number_format($the['service_charge'],2) ?> (<?= $per_charge ?>%)</td>

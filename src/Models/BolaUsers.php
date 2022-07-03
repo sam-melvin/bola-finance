@@ -37,6 +37,19 @@ class BolaUsers extends Model
         return empty($result) ? '' : $fname;
     }
 
+    public function getUserNameByCode($code)
+    {
+        /**
+         * get latest balance information
+         */
+        $result = $this->where('invitation_code', $code)
+            ->orderByDesc('id')
+            ->first();
+        
+        $fname = $result->first_name. ' '.$result->last_name;
+        return empty($result) ? '' : $fname;
+    }
+
     public function getUserID($username)
     {
         /**

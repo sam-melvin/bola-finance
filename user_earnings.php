@@ -1,13 +1,13 @@
 <?php
 use App\Models\User;
-use App\Models\Withdraw;
+use App\Models\UserEarnings;
+use App\Models\BolaUsers;
 use App\Models\UsersAccess;
-use App\Models\CashPool;
 
 require 'bootstrap.php';
 checkSessionRedirect(SESSION_UID, PAGE_LOCATION_LOGIN);
 $loggedUser = User::find($_SESSION[SESSION_UID]);
-$page = 'withdraw';
+$page = 'userearnings';
 $pagetype = 5;
 checkCurUserIsAllow($pagetype,$_SESSION[SESSION_TYPE]);
 
@@ -23,41 +23,17 @@ $userAccess = UsersAccess::create([
 
 $_SESSION['last_page'] = $_SERVER['SCRIPT_URI'];
 
-$status = Withdraw::STATUS_PENDING;
-
 $ids = $_SESSION[SESSION_UID];
 $lists = [];
 $now = new DateTime('now');
 
-$withdraw = new Withdraw();
-
-$result = $withdraw->getWithdrawReq($ids,$status);
-  
-    foreach ($result as $withdraw) {
-        $fname = $withdraw->first_name. ' '.$withdraw->last_name;
-        // echo 'wew: ' . $bets->id;
-        array_push($lists, [
-            'id' => $withdraw->id,
-            'user_id' => $withdraw->user_id,
-            'fname' => $fname,
-            'address' => $withdraw->address,
-            'amount' => $withdraw->cash,
-            'acct_name' => $withdraw->account_name,
-            'acct_no' => $withdraw->account_number,
-            'type' => $withdraw->type,
-            'cash_out_type' => $withdraw->cash_out_type,
-            'status' => $withdraw->status,
-            'date_created' => $withdraw->date_created,
-            
-        ]);
-    }
-
-$cashpool = new CashPool();
-$banker = [
-    'currentBalance' => $cashpool->getCashPool()
-];
-
+$userearn = new UserEarnings();
+$status = 'redeemed';
+$result = $userearn->getUserNotRedeemLogs($status);
+ 
+$bolauser = new BolaUsers();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -108,8 +84,8 @@ $banker = [
   </div>
 
   <!-- Navbar -->
-<!-- <nav class="main-header navbar navbar-expand navbar-white navbar-light"> -->
-<nav class="main-header navbar navbar-expand navbar-white navbar-light">
+  <!-- <nav class="main-header navbar navbar-expand navbar-white navbar-light"> -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
@@ -120,14 +96,15 @@ $banker = [
     <?php
           include APP . DS . 'templates/elements/navbarlinks.php';
     ?>
-    
+
+
   </nav>
   <!-- /.navbar -->
+  
 
   <?php
           include APP . DS . 'templates/elements/navigation.php';
     ?>
-
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -139,8 +116,8 @@ $banker = [
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item">Withdraw</li>
-              <li class="breadcrumb-item active"></li>
+              <li class="breadcrumb-item">User Earnings</li>
+              <li class="breadcrumb-item"></li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -151,34 +128,17 @@ $banker = [
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
+      
         <!-- Small boxes (Stat box) -->
-        <div class="row">
-                        <div class="col">
-                            <div class="small-box bg-info">
-                                <div class="inner">
-                                    <h3>&#8369; <?= number_format($banker['currentBalance'], 2) ?></h3>
-                                    <p>Total Finance Balance</p>
-                                </div>
-                                <div class="icon">
-                                    <i class="fas fa-coins"></i>
-                                </div>
-                               
-                                <!-- <a href="wallet_trans.php" class="small-box-footer" data-toggle="modal" data-target="#payModal">
-                                        Add Funds <i class="fa-solid fa-user-plus"></i>
-                                </a> -->
-                            </div>
-                        </div>
-                        
-                    </div>
         <div class="row">
           <div class="col-12">
               <div class="card">
                     <div class="card-header">
-                      <h3 class="card-title">Withdrawal Request</h3>
-                      <div class="card-tools">
+                      <h3 class="card-title">User Earnings Redeemed Logs</h3>
+                        <div class="card-tools">
                             <div class="btn-group">
-                            <a class="btn btn-primary" href="withdraw-trans.php">
-                                    <i class="fas fa-history"></i>&nbsp;Withdrawal History
+                                <a class="btn btn-primary" href="notredeem.php">
+                                    <i class="fas fa-history"></i>&nbsp;Not Redeem Logs
                                 </a>
                                 <!-- <a class="btn btn-primary ml-2" href="sent_rs_history.php">
                                     <i class="fas fa-coins"></i>&nbsp;Report Summary History
@@ -188,76 +148,51 @@ $banker = [
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                    <input type="hidden" name="cur_balance" id="cur_balance" value="<?= $banker['currentBalance'] ?>" />
                       <table id="example1" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th>Withdraw ID</th>
-                            <th>User ID</th>
-                            <th>Requested By</th>
-                            <th>Address</th>
-                            <th>Amount</th>
-                            <th>Account Name</th>
-                            <th>Account No.</th>
-                            <th>Type</th>
-                            <th>From</th>
-                            <th>Status</th>
-                          <th>Date Requested</th>
-                          <th></th>
+                        <th>Earning ID</th>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Amount</th>
+                        <th>Level</th>
+                        <th>Commission</th>
+                        <th>Earned From</th>
+                        <th>Usertype</th>
+                          <th>Status</th>
+                          <th>Date Created</th>
                           
                         </tr>
                         </thead>
                         <tbody>
                         
                         <?php
-                                          
-                                        
-                                          foreach ($lists as $the):
+                                                foreach ($result as $the):
 
-                                            $datas = array();
-                                            
-                                            $cpid =$the['id'];
-                                            
-                                            $datec=date_create($the['date_created']);
-                                            
-                                            $datas['admin_id'] = $ids;
-                                            $datas['user_id'] = $the['user_id'];
-                                            $datas['cash'] = $the['amount'];
-                                            $datas['cash_out_type'] = $the['cash_out_type'];
-                                            $datas['account_name'] = $the['acct_name'];
-                                            $datas['account_number'] = $the['acct_no'];
-                                            $datas['type'] = $the['type'];
-                                            $myJSONdatas=json_encode($datas); 
-                            ?>
-                                            
-                                        <tr>
-                                        <td><?= $the['id'] ?></td>
-                                        <td><?= $the['user_id'] ?></td>
-                                        <td><?= $the['fname'] ?></td>
-                                        <td><?= $the['address'] ?></td>
-                                        <td><?= $the['amount'] ?></td>
-                                        <td><?= $the['acct_name'] ?></td>
-                                        <td><?= $the['acct_no'] ?></td>
-                                        <td><?= $the['cash_out_type'] ?></td>
-                                        <td><?= $the['type'] == '3' ? 'Loader' : 'Member' ?></td>
-                                        <td><?= $the['status'] ?></td>
-                                        <td><?= date_format($datec,'F j, Y, g:i a') ?></td>
-                                                      
-                                        <td>
-                                                <div class='btn-group'>
-                                                <button type='button' class='btn btn-info'>Action</button>
-                                                <button type='button' class='btn btn-info dropdown-toggle dropdown-icon' data-toggle='dropdown'>
-                                                  <span class='sr-only'>Toggle Dropdown</span>
-                                                </button>
-                                                <div class='dropdown-menu' role='menu'>
-                                                <?php  echo "<a class='dropdown-item' href='#' class='text-success' onclick='approvedWithDrawRequest($cpid,$myJSONdatas,true)'>Sent</a>
-                                                  <a class='dropdown-item' href='#' class='text-danger' onclick='approvedWithDrawRequest($cpid,$myJSONdatas,false)'>Decline</a>"; ?>
-                                                </div>
-                                              </div>
+                                                $datec=date_create($the['date_created']);
+                                                $perc = (float)$the['comm_percent'] * 100;
+?>
                                                 
-                                                </td>
-                                              </tr>
-                                        <?php endforeach ?>
+                                            <tr>
+                                            <td><?= $the['id'] ?></td>
+                                            <td><?= $the['user_id'] ?></td>
+                                            <td><?= $the['username'] ?></td>
+                                            <td>&#8369; <?=  number_format($the['amount'],2) ?></td>
+                                            <td><?= $the['level'] ?></td>
+                                            <td><?= $the['type'] ?> (<?= number_format($perc,2) ?>%)</td>
+                                            <td><?= $bolauser->getUserUserName($the['earning_from_uname']) ?></td>
+                                            <td><?= $the['usertype'] == 3 ? 'loader': 'member' ?></td>
+                                            <td><?= $the['status'] ?></td>
+                                            <td><?= date_format($datec,'F j, Y, g:i a') ?></td>
+                                                      
+                                               </tr>
+
+                                                    
+                                               <?php endforeach ?>
+                                               
+                                        
+                                    
+                                    
                         
                         </tbody>
                         <!-- <tfoot>
@@ -302,6 +237,8 @@ $banker = [
         <!-- /.row (main row) -->
       </div><!-- /.container-fluid -->
 
+      
+
       <?php
           include APP . DS . 'templates/elements/updatepass.php';
       ?>
@@ -310,7 +247,6 @@ $banker = [
     </section>
     <!-- /.content -->
   </div>
-  <!-- /.content-wrapper -->
   <?php
             include APP . DS . 'templates/elements/footer.php';
       ?>
@@ -358,6 +294,7 @@ $banker = [
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="dist/js/pages/dashboard.js"></script>
 <script src="dist/js/pages/templates.js"></script>
+<script src="dist/js/share.js"></script>
 <!-- DataTables  & Plugins -->
 <script src="plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
@@ -379,16 +316,14 @@ $banker = [
 <script type="text/javascript"> 
   $(function () {
     $("#example1").DataTable({
-      "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1,"order": [[0, 'desc']]
+      "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1,"order": [[0, 'desc']],
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     
     
   });
+  Share.init()
 
-      
 </script>
-
-<!-- start webpushr code --> <script>(function(w,d, s, id) {if(typeof(w.webpushr)!=='undefined') return;w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};var js, fjs = d.getElementsByTagName(s)[0];js = d.createElement(s); js.id = id;js.async=1;js.src = "https://cdn.webpushr.com/app.min.js";fjs.parentNode.appendChild(js);}(window,document, 'script', 'webpushr-jssdk'));webpushr('setup',{'key':'BD28LUw_uKc8Dfsb4PFnzMP711p51sGvj8ZZB4aboezeBmR7kO-qgwxA9RbthXexhZqQszG7VvNtyWlij-6X-sI' ,'integration':'popup' });</script><!-- end webpushr code -->
 </body>
 </html>
 

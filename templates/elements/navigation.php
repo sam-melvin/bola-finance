@@ -44,6 +44,13 @@ $navTrees = [
         'type' => USER_FINANCE
     ],
     [
+        'title' => 'User Earnings',
+        'link' => 'user_earnings.php',
+        'page' => 'userearnings',
+        'icon' => 'fa-circle',
+        'type' => USER_FINANCE
+    ],
+    [
         'title' => 'Admin User',
         'link' => 'admin_users.php',
         'page' => 'admin_users',

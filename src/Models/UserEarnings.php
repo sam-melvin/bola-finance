@@ -12,10 +12,7 @@ class UserEarnings extends Model
     /**
      * Status constant
      */
-    const STATUS_PENDING = 'pending';
-    const STATUS_WIN = 'win';
-    const STATUS_LOSE = 'lose';
-
+    
     /**
      *  Set the table name
      * @var string
@@ -108,6 +105,15 @@ class UserEarnings extends Model
     }
 
     
+    public function getUserNotRedeemLogs($status) {
+        $result = $this->join('users', 'user_earnings.user_id', '=', 'users.id')
+        ->select('user_earnings.*', 'users.username', 'users.type as usertype')
+        ->where('user_earnings.status', '=', $status)
+        ->get();
+
+
+        return empty($result) ? 'no data' : $result;
+    }
 
     protected $table = 'user_earnings';
     /**

@@ -427,8 +427,8 @@ var confirmApproveApplication = function(datas,isApproved) {
   
 
   var approvedApplication = async function(refer,datas,isApproved) {
-    
-    console.log('data ids:' + datas);
+    let idsst = JSON.stringify(datas);
+    console.log('data ids:' + idsst);
     console.log('data isApproved:' + isApproved);
     let stats = 'DECLINE';
     if(isApproved)
@@ -446,7 +446,7 @@ var confirmApproveApplication = function(datas,isApproved) {
             if(isApproved)
             getCode(refer,datas,isApproved);
             else
-            saveDataApp('','',datas,isApproved);
+            saveDataApp('','','',datas,isApproved);
             
             
         } else if (result.isDenied) {
@@ -466,7 +466,7 @@ var confirmApproveApplication = function(datas,isApproved) {
       
       // let sdatas = JSON.stringify(datas); 
       console.log('status: ' + status);
-      console.log('pass: ' + pass);
+      console.log('datas.ids: ' + datas.ids);
       $.ajax({
         type:"post",
         dataType: "json",
@@ -484,7 +484,7 @@ var confirmApproveApplication = function(datas,isApproved) {
           assign_location: datas.province,
           status: status
         },
-        url:"http://bolaswerte.bolaswerte.com/api/loaderApplication/",
+        url:api + "loaderApplication/",
         success:function(res)
         {
             Swal.fire('Saved!', '', 'success')

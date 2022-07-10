@@ -29,8 +29,12 @@ $now = new DateTime('now');
 
 $userearn = new UserEarnings();
 $status = 'notredeem';
+$total_notredeem = 0;
 $result = $userearn->getUserNotRedeemLogs($status);
- 
+foreach ($result as $the) {
+  $total_notredeem += (float)$the['amount'];
+}
+
 $bolauser = new BolaUsers();
 ?>
 
@@ -131,6 +135,21 @@ $bolauser = new BolaUsers();
       
         <!-- Small boxes (Stat box) -->
         <div class="row">
+        <div class="col">
+              <div class="small-box bg-warning">
+                  <div class="inner">
+                      <h3>&#8369; <?= number_format($total_notredeem, 2) ?></h3>
+                      <p>Total Not Redeem Amount</p>
+                  </div>
+                  <div class="icon">
+                      <i class="fas fa-coins"></i>
+                  </div>
+                  <!-- <a href="wallet_trans.php" class="small-box-footer">
+                      View <i class="fas fa-arrow-circle-right"></i>
+                  </a> -->
+              </div>
+          </div>
+
           <div class="col-12">
               <div class="card">
                     <div class="card-header">
@@ -317,6 +336,10 @@ $bolauser = new BolaUsers();
   $(function () {
     $("#example1").DataTable({
       "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1,"order": [[0, 'desc']],
+      lengthMenu: [
+            [500, -1],
+            [500, 'All'],
+        ],
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     
     

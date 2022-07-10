@@ -9,20 +9,6 @@ $navTrees = [
         'type' => USER_FINANCE
     ],
     [
-        'title' => 'Pending Loader',
-        'link' => 'applicants-finance.php',
-        'page' => 'applicants-finance',
-        'icon' => 'fa-circle',
-        'type' => USER_FINANCE
-    ],
-    [
-        'title' => 'Approved Loader',
-        'link' => 'app-applicants-fin.php',
-        'page' => 'app-applicants-fin',
-        'icon' => 'fa-circle',
-        'type' => USER_FINANCE
-    ],
-    [
         'title' => 'Cash In Loader',
         'link' => 'cashinloader.php',
         'page' => 'cashinloader',

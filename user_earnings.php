@@ -29,8 +29,12 @@ $now = new DateTime('now');
 
 $userearn = new UserEarnings();
 $status = 'redeemed';
+$total_redeemed = 0;
 $result = $userearn->getUserNotRedeemLogs($status);
- 
+foreach ($result as $the) {
+  $total_redeemed += (float)$the['amount'];
+}
+
 $bolauser = new BolaUsers();
 ?>
 
@@ -131,6 +135,20 @@ $bolauser = new BolaUsers();
       
         <!-- Small boxes (Stat box) -->
         <div class="row">
+        <div class="col">
+              <div class="small-box bg-warning">
+                  <div class="inner">
+                      <h3>&#8369; <?= number_format($total_redeemed, 2) ?></h3>
+                      <p>Total Redeemed Amount</p>
+                  </div>
+                  <div class="icon">
+                      <i class="fas fa-coins"></i>
+                  </div>
+                  <!-- <a href="wallet_trans.php" class="small-box-footer">
+                      View <i class="fas fa-arrow-circle-right"></i>
+                  </a> -->
+              </div>
+          </div>
           <div class="col-12">
               <div class="card">
                     <div class="card-header">

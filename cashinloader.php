@@ -464,7 +464,7 @@ $banker = [
 
   $(function () {
     $("#example1").DataTable({
-      "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1,"order": [[6, 'desc']],
+      "responsive": true, "lengthChange": true, "autoWidth": true, "sorter": 1,"order": [[0, 'desc']],
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
     
     

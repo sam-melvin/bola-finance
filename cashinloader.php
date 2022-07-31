@@ -44,6 +44,7 @@ $result = $cashin->getCashinReqloader($status);
             'user_id' => $cash->user_id,
             'code' => $cash->invitation_code,
             'fname' => $fname,
+            'phone' => $cash->phone_number,
             'address' => $cash->address,
             'amount' => $cash->cash,
             'ref_no' => $cash->ref_no,
@@ -247,7 +248,7 @@ $banker = [
                         <th>Code</th>
                         <th>Loader Name</th>
                           <th>Amount</th>
-                          <th>Address</th>
+                          <th>Phone No.</th>
                           <th>Status</th>
                           <th>Date Requested</th>
                           <th></th>
@@ -284,6 +285,7 @@ $banker = [
                                             <td><?= $the['code'] ?></td>
                                             <td><?= $the['fname'] ?></td>
                                             <td>&#8369; <?=  number_format($the['amount'],2) ?></td>
+                                            <td><?= $the['phone'] ?></td>
                                             <td><?= $the['address'] ?></td>
                                             <td><?= $the['status'] ?></td>
                                             <td><?= date_format($datec,'F j, Y, g:i a') ?></td>

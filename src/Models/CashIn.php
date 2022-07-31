@@ -18,7 +18,7 @@ class CashIn extends Model
 
     public function getCashinReqloader ($status) {
         $result = $this->join('users', 'user_cash_in.user_id', '=', 'users.id')
-        ->select('user_cash_in.*', 'users.first_name', 'users.last_name', 'users.address','users.invitation_code','users.invitor_id')
+        ->select('user_cash_in.*', 'users.first_name', 'users.last_name', 'users.address','users.invitation_code','users.invitor_id','users.phone_number')
         ->where('user_cash_in.status', '=', $status)
         ->where('user_cash_in.type', '=', 3)
         ->get();
